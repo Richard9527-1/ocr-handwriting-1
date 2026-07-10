@@ -24,7 +24,7 @@
             border-radius: 20px;
             box-shadow: 0 20px 60px rgba(0, 0, 0, 0.1);
             padding: 40px;
-            max-width: 700px;
+            max-width: 900px;
             width: 100%;
         }
         h1 {
@@ -39,14 +39,26 @@
         .subtitle {
             color: #718096;
             font-size: 14px;
-            margin-bottom: 30px;
+            margin-bottom: 20px;
             border-bottom: 2px solid #edf2f7;
             padding-bottom: 16px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .tag {
+            display: inline-block;
+            background: #ebf8ff;
+            color: #2b6cb0;
+            font-size: 12px;
+            padding: 2px 12px;
+            border-radius: 20px;
+            font-weight: 500;
         }
         .upload-area {
             border: 2px dashed #cbd5e0;
             border-radius: 12px;
-            padding: 40px 20px;
+            padding: 30px 20px;
             text-align: center;
             cursor: pointer;
             transition: all 0.3s;
@@ -57,13 +69,9 @@
             border-color: #4299e1;
             background: #ebf8ff;
         }
-        .upload-area.dragover {
-            border-color: #4299e1;
-            background: #ebf8ff;
-        }
         .upload-area .icon {
-            font-size: 48px;
-            margin-bottom: 10px;
+            font-size: 40px;
+            margin-bottom: 8px;
         }
         .upload-area .text {
             color: #4a5568;
@@ -72,52 +80,98 @@
         .upload-area .hint {
             color: #a0aec0;
             font-size: 13px;
-            margin-top: 6px;
+            margin-top: 4px;
         }
         #fileInput {
             display: none;
         }
-        .preview-area {
-            margin-top: 20px;
-            display: none;
-            border-radius: 12px;
-            overflow: hidden;
-            background: #f7fafc;
-            padding: 12px;
-            border: 1px solid #e2e8f0;
-        }
-        .preview-area img {
-            max-width: 100%;
+        .preview-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+            gap: 12px;
+            margin-top: 16px;
             max-height: 300px;
-            display: block;
-            margin: 0 auto;
-            border-radius: 8px;
+            overflow-y: auto;
+            padding: 8px;
         }
-        .preview-area .filename {
+        .preview-item {
+            position: relative;
+            border-radius: 8px;
+            overflow: hidden;
+            border: 2px solid #e2e8f0;
+            background: #f7fafc;
+            aspect-ratio: 1;
+        }
+        .preview-item img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        .preview-item .remove-btn {
+            position: absolute;
+            top: 4px;
+            right: 4px;
+            width: 22px;
+            height: 22px;
+            border-radius: 50%;
+            background: rgba(229, 62, 62, 0.85);
+            color: white;
+            border: none;
+            cursor: pointer;
+            font-size: 14px;
+            line-height: 22px;
             text-align: center;
-            color: #4a5568;
-            font-size: 13px;
-            margin-top: 8px;
+            transition: all 0.2s;
+        }
+        .preview-item .remove-btn:hover {
+            background: #e53e3e;
+            transform: scale(1.1);
+        }
+        .preview-item .index-badge {
+            position: absolute;
+            bottom: 4px;
+            left: 4px;
+            background: rgba(0, 0, 0, 0.7);
+            color: white;
+            font-size: 11px;
+            padding: 1px 8px;
+            border-radius: 10px;
+        }
+        .preview-item .status-badge {
+            position: absolute;
+            top: 4px;
+            left: 4px;
+            font-size: 10px;
+            padding: 1px 8px;
+            border-radius: 10px;
+            background: rgba(0, 0, 0, 0.6);
+            color: white;
+        }
+        .preview-item .status-badge.done {
+            background: rgba(56, 161, 105, 0.85);
+        }
+        .preview-item .status-badge.error {
+            background: rgba(229, 62, 62, 0.85);
+        }
+        .preview-item .status-badge.processing {
+            background: rgba(237, 137, 54, 0.85);
         }
         .btn-group {
             display: flex;
             gap: 12px;
-            margin-top: 20px;
+            margin-top: 16px;
             flex-wrap: wrap;
         }
         .btn {
-            flex: 1;
-            min-width: 120px;
-            padding: 12px 24px;
+            padding: 10px 24px;
             border: none;
             border-radius: 10px;
-            font-size: 16px;
+            font-size: 15px;
             font-weight: 600;
             cursor: pointer;
             transition: all 0.2s;
             display: flex;
             align-items: center;
-            justify-content: center;
             gap: 8px;
         }
         .btn-primary {
@@ -151,8 +205,15 @@
             transform: translateY(-1px);
             box-shadow: 0 4px 12px rgba(72, 187, 120, 0.4);
         }
+        .btn-danger {
+            background: #fc8181;
+            color: white;
+        }
+        .btn-danger:hover {
+            background: #e53e3e;
+        }
         .result-area {
-            margin-top: 24px;
+            margin-top: 20px;
             display: none;
         }
         .result-area .label {
@@ -164,20 +225,14 @@
             justify-content: space-between;
             align-items: center;
         }
-        .result-area .label .char-count {
-            font-weight: 400;
-            color: #a0aec0;
-            font-size: 13px;
-        }
         .result-box {
             background: #f7fafc;
             border: 1px solid #e2e8f0;
             border-radius: 10px;
             padding: 16px 20px;
-            min-height: 100px;
-            max-height: 300px;
+            max-height: 400px;
             overflow-y: auto;
-            font-size: 16px;
+            font-size: 15px;
             line-height: 1.8;
             white-space: pre-wrap;
             word-break: break-all;
@@ -188,6 +243,27 @@
         }
         .result-box .error {
             color: #e53e3e;
+        }
+        .result-item {
+            border-bottom: 1px solid #e2e8f0;
+            padding: 12px 0;
+        }
+        .result-item:last-child {
+            border-bottom: none;
+        }
+        .result-item .filename {
+            font-weight: 600;
+            color: #2d3748;
+            font-size: 13px;
+            margin-bottom: 4px;
+        }
+        .result-item .text {
+            color: #4a5568;
+            font-size: 14px;
+        }
+        .result-item .text .empty {
+            color: #a0aec0;
+            font-style: italic;
         }
         .status-bar {
             margin-top: 12px;
@@ -211,17 +287,23 @@
                 transform: rotate(360deg);
             }
         }
-        .tag {
-            display: inline-block;
-            background: #ebf8ff;
-            color: #2b6cb0;
-            font-size: 12px;
-            padding: 2px 12px;
-            border-radius: 20px;
-            font-weight: 500;
+        .progress-bar {
+            width: 100%;
+            height: 6px;
+            background: #edf2f7;
+            border-radius: 3px;
+            margin-top: 12px;
+            overflow: hidden;
+        }
+        .progress-bar .fill {
+            height: 100%;
+            background: linear-gradient(90deg, #4299e1, #48bb78);
+            border-radius: 3px;
+            transition: width 0.3s;
+            width: 0%;
         }
         .footer {
-            margin-top: 30px;
+            margin-top: 24px;
             padding-top: 16px;
             border-top: 1px solid #edf2f7;
             display: flex;
@@ -231,18 +313,22 @@
             flex-wrap: wrap;
             gap: 8px;
         }
+        .batch-info {
+            font-size: 13px;
+            color: #4a5568;
+        }
         @media (max-width: 600px) {
             .container {
-                padding: 20px;
+                padding: 16px;
             }
             h1 {
-                font-size: 22px;
+                font-size: 20px;
+            }
+            .preview-grid {
+                grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
             }
             .btn-group {
                 flex-direction: column;
-            }
-            .btn {
-                min-width: unset;
             }
         }
     </style>
@@ -252,36 +338,41 @@
     <div class="container">
         <h1>
             ✍️ 手写识别
-            <span class="tag">百度OCR</span>
+            <span class="tag">批量模式</span>
         </h1>
-        <div class="subtitle">拍照或上传手写图片，自动识别文字</div>
+        <div class="subtitle">
+            <span>拍照或上传手写图片，自动识别文字</span>
+            <span class="batch-info">📸 最多 10 张</span>
+        </div>
 
         <!-- 上传区域 -->
         <div class="upload-area" id="dropZone">
             <div class="icon">📤</div>
             <div class="text">点击上传或拖拽图片</div>
-            <div class="hint">支持 JPG / PNG / BMP，建议清晰度越高越好</div>
-            <input type="file" id="fileInput" accept="image/*" />
+            <div class="hint">支持 JPG / PNG / BMP，最多 10 张</div>
+            <input type="file" id="fileInput" accept="image/*" multiple />
         </div>
 
         <!-- 图片预览 -->
-        <div class="preview-area" id="previewArea">
-            <img id="previewImg" src="" alt="预览" />
-            <div class="filename" id="fileName">未命名图片</div>
-        </div>
+        <div class="preview-grid" id="previewGrid"></div>
 
         <!-- 操作按钮 -->
         <div class="btn-group">
-            <button class="btn btn-primary" id="recognizeBtn">🔍 开始识别</button>
-            <button class="btn btn-secondary" id="clearBtn">🗑️ 清空</button>
-            <button class="btn btn-success" id="copyBtn" style="display:none;">📋 复制结果</button>
+            <button class="btn btn-primary" id="recognizeBtn" disabled>🔍 开始识别</button>
+            <button class="btn btn-secondary" id="clearBtn">🗑️ 清空全部</button>
+            <button class="btn btn-success" id="copyBtn" style="display:none;">📋 复制全部结果</button>
+        </div>
+
+        <!-- 进度条 -->
+        <div class="progress-bar" id="progressBar">
+            <div class="fill" id="progressFill"></div>
         </div>
 
         <!-- 结果显示 -->
         <div class="result-area" id="resultArea">
             <div class="label">
                 <span>识别结果</span>
-                <span class="char-count" id="charCount">0 字符</span>
+                <span class="char-count" id="resultCount">0 张图片</span>
             </div>
             <div class="result-box" id="resultBox">
                 <span class="placeholder">等待识别...</span>
@@ -293,7 +384,7 @@
         </div>
 
         <div class="footer">
-            <span>⚡ 准确率 ≥ 95% · 每日 500 次免费</span>
+            <span>⚡ 准确率 ≥ 95% · 百度OCR</span>
             <span>数据通过百度云API处理</span>
         </div>
     </div>
@@ -304,19 +395,20 @@
         // ========================================
         const dropZone = document.getElementById('dropZone');
         const fileInput = document.getElementById('fileInput');
-        const previewArea = document.getElementById('previewArea');
-        const previewImg = document.getElementById('previewImg');
-        const fileName = document.getElementById('fileName');
+        const previewGrid = document.getElementById('previewGrid');
         const recognizeBtn = document.getElementById('recognizeBtn');
         const clearBtn = document.getElementById('clearBtn');
         const copyBtn = document.getElementById('copyBtn');
         const resultArea = document.getElementById('resultArea');
         const resultBox = document.getElementById('resultBox');
-        const charCount = document.getElementById('charCount');
+        const resultCount = document.getElementById('resultCount');
         const statusText = document.getElementById('statusText');
         const loadingSpinner = document.getElementById('loadingSpinner');
+        const progressFill = document.getElementById('progressFill');
 
-        let currentFile = null;
+        let fileList = []; // 存储 { id, file, dataUrl, status, result }
+        let isProcessing = false;
+        let fileIdCounter = 0;
 
         // ========================================
         //  上传交互
@@ -334,130 +426,320 @@
             e.preventDefault();
             dropZone.classList.remove('dragover');
             if (e.dataTransfer.files.length) {
-                handleFile(e.dataTransfer.files[0]);
+                handleFiles(e.dataTransfer.files);
             }
         });
 
         fileInput.addEventListener('change', (e) => {
             if (e.target.files.length) {
-                handleFile(e.target.files[0]);
+                handleFiles(e.target.files);
+                fileInput.value = '';
             }
         });
 
         // ========================================
         //  文件处理
         // ========================================
-        function handleFile(file) {
-            if (!file.type.startsWith('image/')) {
-                alert('请上传图片文件');
+        function handleFiles(files) {
+            const remaining = 10 - fileList.length;
+            if (remaining <= 0) {
+                alert('最多只能上传 10 张图片！');
                 return;
             }
-            currentFile = file;
 
-            // 预览
-            const reader = new FileReader();
-            reader.onload = (e) => {
-                previewImg.src = e.target.result;
-                fileName.textContent = file.name + ` (${(file.size / 1024).toFixed(1)} KB)`;
-                previewArea.style.display = 'block';
-                dropZone.style.display = 'none';
-                recognizeBtn.disabled = false;
-                statusText.textContent = '已上传，点击识别';
-                copyBtn.style.display = 'none';
-                // 清空旧结果
-                resultBox.innerHTML = '<span class="placeholder">等待识别...</span>';
-                charCount.textContent = '0 字符';
-            };
-            reader.readAsDataURL(file);
+            let added = 0;
+            for (const file of files) {
+                if (added >= remaining) break;
+                if (!file.type.startsWith('image/')) continue;
+
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    fileList.push({
+                        id: fileIdCounter++,
+                        file: file,
+                        dataUrl: e.target.result,
+                        status: 'pending', // pending | processing | done | error
+                        result: null,
+                        error: null
+                    });
+                    renderPreview();
+                    updateButtons();
+                };
+                reader.readAsDataURL(file);
+                added++;
+            }
+
+            if (added === 0 && files.length > 0) {
+                alert('请上传图片文件（JPG/PNG/BMP）');
+            }
         }
 
         // ========================================
-        //  核心识别函数
+        //  渲染预览
+        // ========================================
+        function renderPreview() {
+            previewGrid.innerHTML = '';
+            fileList.forEach((item) => {
+                const div = document.createElement('div');
+                div.className = 'preview-item';
+
+                const img = document.createElement('img');
+                img.src = item.dataUrl;
+                div.appendChild(img);
+
+                const removeBtn = document.createElement('button');
+                removeBtn.className = 'remove-btn';
+                removeBtn.textContent = '×';
+                removeBtn.onclick = (e) => {
+                    e.stopPropagation();
+                    removeFile(item.id);
+                };
+                div.appendChild(removeBtn);
+
+                const indexBadge = document.createElement('span');
+                indexBadge.className = 'index-badge';
+                const idx = fileList.indexOf(item) + 1;
+                indexBadge.textContent = `#${idx}`;
+                div.appendChild(indexBadge);
+
+                const statusBadge = document.createElement('span');
+                statusBadge.className = 'status-badge';
+                if (item.status === 'pending') {
+                    statusBadge.textContent = '⏳ 待识别';
+                } else if (item.status === 'processing') {
+                    statusBadge.textContent = '⏳ 识别中';
+                    statusBadge.className += ' processing';
+                } else if (item.status === 'done') {
+                    statusBadge.textContent = '✅ 完成';
+                    statusBadge.className += ' done';
+                } else if (item.status === 'error') {
+                    statusBadge.textContent = '❌ 失败';
+                    statusBadge.className += ' error';
+                }
+                div.appendChild(statusBadge);
+
+                previewGrid.appendChild(div);
+            });
+
+            // 显示/隐藏上传区域
+            dropZone.style.display = fileList.length >= 10 ? 'none' : 'block';
+        }
+
+        // ========================================
+        //  移除文件
+        // ========================================
+        function removeFile(id) {
+            if (isProcessing) {
+                alert('识别进行中，请等待完成');
+                return;
+            }
+            fileList = fileList.filter(item => item.id !== id);
+            renderPreview();
+            updateButtons();
+            if (fileList.length === 0) {
+                resultArea.style.display = 'none';
+                copyBtn.style.display = 'none';
+            }
+        }
+
+        // ========================================
+        //  更新按钮状态
+        // ========================================
+        function updateButtons() {
+            const hasPending = fileList.some(item => item.status === 'pending');
+            recognizeBtn.disabled = fileList.length === 0 || isProcessing || !hasPending;
+            clearBtn.disabled = fileList.length === 0 || isProcessing;
+        }
+
+        // ========================================
+        //  核心识别函数（批量）
         // ========================================
         async function recognize() {
-    if (!currentFile) {
-        alert('请先上传图片');
-        return;
-    }
+            if (isProcessing) return;
+            if (fileList.length === 0) {
+                alert('请先上传图片');
+                return;
+            }
 
-    recognizeBtn.disabled = true;
-    recognizeBtn.textContent = '⏳ 识别中...';
-    loadingSpinner.style.display = 'block';
-    statusText.textContent = '正在识别，请稍候...';
-    resultBox.innerHTML = '<span style="color:#718096;">⏳ 识别中...</span>';
+            const pendingItems = fileList.filter(item => item.status === 'pending');
+            if (pendingItems.length === 0) {
+                alert('所有图片已识别完成');
+                return;
+            }
 
-    const formData = new FormData();
-    formData.append('image', currentFile);
-
-    try {
-        // ==========================================
-        // 修改这里：把 '/ocr' 改为完整的后端地址
-        // ==========================================
-       const response = await fetch('/ocr', {
-            method: 'POST',
-            body: formData
-        });
-
-        const data = await response.json();
-
-        if (data.code === 0 && data.result) {
-            const text = data.result;
-            resultBox.innerHTML = text;
-            const count = text.replace(/\n/g, '').length;
-            charCount.textContent = count + ' 字符';
-            statusText.textContent = '✅ 识别完成';
-            copyBtn.style.display = 'inline-flex';
-        } else {
-            resultBox.innerHTML = `<span class="error">❌ ${data.msg || '识别失败，请重试'}</span>`;
-            statusText.textContent = '❌ 识别失败';
+            isProcessing = true;
+            recognizeBtn.disabled = true;
+            loadingSpinner.style.display = 'block';
+            statusText.textContent = '正在识别...';
+            resultArea.style.display = 'block';
+            resultBox.innerHTML = '<span style="color:#718096;">⏳ 批量识别中，请稍候...</span>';
             copyBtn.style.display = 'none';
+            progressFill.style.width = '0%';
+
+            const total = pendingItems.length;
+            let completed = 0;
+
+            // 逐个识别
+            for (let i = 0; i < pendingItems.length; i++) {
+                const item = pendingItems[i];
+                const idx = fileList.indexOf(item);
+
+                // 更新状态为处理中
+                item.status = 'processing';
+                renderPreview();
+
+                try {
+                    const formData = new FormData();
+                    formData.append('image', item.file);
+
+                    const response = await fetch('/ocr', {
+                        method: 'POST',
+                        body: formData
+                    });
+
+                    const data = await response.json();
+
+                    if (data.code === 0 && data.result) {
+                        item.status = 'done';
+                        item.result = data.result;
+                        item.error = null;
+                    } else {
+                        item.status = 'error';
+                        item.result = null;
+                        item.error = data.msg || '识别失败';
+                    }
+                } catch (error) {
+                    item.status = 'error';
+                    item.result = null;
+                    item.error = error.message || '网络错误';
+                }
+
+                completed++;
+                progressFill.style.width = `${(completed / total) * 100}%`;
+                renderPreview();
+                statusText.textContent = `识别中 ${completed}/${total}`;
+
+                // 更新结果展示
+                displayResults();
+            }
+
+            // 完成
+            isProcessing = false;
+            loadingSpinner.style.display = 'none';
+            statusText.textContent = '✅ 识别完成';
+            recognizeBtn.disabled = false;
+            updateButtons();
+
+            const doneCount = fileList.filter(item => item.status === 'done').length;
+            const errorCount = fileList.filter(item => item.status === 'error').length;
+            if (doneCount > 0) {
+                copyBtn.style.display = 'inline-flex';
+            }
+            statusText.textContent = `✅ 完成：${doneCount} 张成功${errorCount > 0 ? `，${errorCount} 张失败` : ''}`;
         }
-    } catch (error) {
-        resultBox.innerHTML = `<span class="error">❌ 网络错误：${error.message}</span>`;
-        statusText.textContent = '❌ 请求失败';
-        copyBtn.style.display = 'none';
-    } finally {
-        recognizeBtn.disabled = false;
-        recognizeBtn.textContent = '🔍 开始识别';
-        loadingSpinner.style.display = 'none';
-        resultArea.style.display = 'block';
-    }
-}
 
         // ========================================
-        //  辅助功能
+        //  显示结果
+        // ========================================
+        function displayResults() {
+            const doneItems = fileList.filter(item => item.status === 'done');
+            const errorItems = fileList.filter(item => item.status === 'error');
+
+            if (doneItems.length === 0 && errorItems.length === 0) {
+                resultBox.innerHTML = '<span class="placeholder">等待识别...</span>';
+                resultCount.textContent = '0 张图片';
+                return;
+            }
+
+            let html = '';
+            fileList.forEach((item, index) => {
+                if (item.status === 'done') {
+                    html += `
+                        <div class="result-item">
+                            <div class="filename">📄 图片 ${index + 1} ✅</div>
+                            <div class="text">${item.result || '<span class="empty">(空结果)</span>'}</div>
+                        </div>
+                    `;
+                } else if (item.status === 'error') {
+                    html += `
+                        <div class="result-item">
+                            <div class="filename">📄 图片 ${index + 1} ❌</div>
+                            <div class="text" style="color:#e53e3e;">错误：${item.error || '未知错误'}</div>
+                        </div>
+                    `;
+                } else if (item.status === 'processing') {
+                    html += `
+                        <div class="result-item">
+                            <div class="filename">📄 图片 ${index + 1} ⏳</div>
+                            <div class="text" style="color:#ed8936;">识别中...</div>
+                        </div>
+                    `;
+                } else {
+                    html += `
+                        <div class="result-item">
+                            <div class="filename">📄 图片 ${index + 1} ⏳</div>
+                            <div class="text" style="color:#a0aec0;">等待识别</div>
+                        </div>
+                    `;
+                }
+            });
+
+            resultBox.innerHTML = html;
+            const total = fileList.length;
+            const done = fileList.filter(item => item.status === 'done').length;
+            resultCount.textContent = `${done}/${total} 张成功`;
+        }
+
+        // ========================================
+        //  清空
         // ========================================
         function clearAll() {
-            currentFile = null;
-            fileInput.value = '';
-            previewImg.src = '';
-            previewArea.style.display = 'none';
-            dropZone.style.display = 'block';
-            recognizeBtn.disabled = true;
-            copyBtn.style.display = 'none';
-            resultBox.innerHTML = '<span class="placeholder">等待识别...</span>';
-            charCount.textContent = '0 字符';
-            statusText.textContent = '就绪';
+            if (isProcessing) {
+                alert('识别进行中，请等待完成');
+                return;
+            }
+            if (fileList.length > 0 && !confirm('确定要清空所有图片吗？')) {
+                return;
+            }
+            fileList = [];
+            renderPreview();
+            updateButtons();
             resultArea.style.display = 'none';
+            copyBtn.style.display = 'none';
+            progressFill.style.width = '0%';
+            statusText.textContent = '就绪';
+            resultCount.textContent = '0 张图片';
         }
 
+        // ========================================
+        //  复制结果
+        // ========================================
         function copyResult() {
-            const text = resultBox.textContent;
-            if (text && !text.includes('等待识别') && !text.includes('识别中')) {
-                navigator.clipboard.writeText(text).then(() => {
-                    const orig = copyBtn.textContent;
-                    copyBtn.textContent = '✅ 已复制';
-                    setTimeout(() => { copyBtn.textContent = orig; }, 1500);
-                }).catch(() => {
-                    // 降级方案
-                    const range = document.createRange();
-                    range.selectNode(resultBox);
-                    window.getSelection().removeAllRanges();
-                    window.getSelection().addRange(range);
-                    document.execCommand('copy');
-                    alert('已复制到剪贴板');
-                });
+            const doneItems = fileList.filter(item => item.status === 'done');
+            if (doneItems.length === 0) {
+                alert('没有可复制的结果');
+                return;
             }
+
+            let text = '';
+            doneItems.forEach((item, index) => {
+                text += `【图片 ${index + 1}】\n${item.result || ''}\n\n`;
+            });
+
+            navigator.clipboard.writeText(text).then(() => {
+                const orig = copyBtn.textContent;
+                copyBtn.textContent = '✅ 已复制';
+                setTimeout(() => { copyBtn.textContent = orig; }, 1500);
+            }).catch(() => {
+                // 降级方案
+                const temp = document.createElement('textarea');
+                temp.value = text;
+                document.body.appendChild(temp);
+                temp.select();
+                document.execCommand('copy');
+                temp.remove();
+                alert('已复制到剪贴板');
+            });
         }
 
         // ========================================
@@ -467,17 +749,10 @@
         clearBtn.addEventListener('click', clearAll);
         copyBtn.addEventListener('click', copyResult);
 
-        // 回车键触发识别
-        document.addEventListener('keydown', (e) => {
-            if (e.key === 'Enter' && !recognizeBtn.disabled) {
-                recognize();
-            }
-        });
-
         // 初始化
-        clearAll();
-        console.log('📝 手写识别工具已加载');
-        console.log('💡 提示: 确保后端服务已启动 (python app.py)');
+        renderPreview();
+        updateButtons();
+        console.log('📝 手写识别工具已加载（批量模式）');
     </script>
 
 </body>

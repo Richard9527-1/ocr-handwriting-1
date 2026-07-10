@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>手写文字识别工具</title>
+    <title>作文批改系统</title>
     <style>
         * {
             box-sizing: border-box;
@@ -11,183 +11,200 @@
             padding: 0;
         }
         body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'PingFang SC', 'Microsoft YaHei', sans-serif;
             background: #f0f4f8;
             min-height: 100vh;
-            display: flex;
-            justify-content: center;
-            align-items: center;
             padding: 20px;
         }
         .container {
-            background: white;
-            border-radius: 20px;
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.1);
-            padding: 40px;
-            max-width: 900px;
-            width: 100%;
+            max-width: 1200px;
+            margin: 0 auto;
         }
-        h1 {
-            font-size: 28px;
-            font-weight: 600;
-            color: #1a202c;
-            margin-bottom: 8px;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-        .subtitle {
-            color: #718096;
-            font-size: 14px;
-            margin-bottom: 20px;
-            border-bottom: 2px solid #edf2f7;
-            padding-bottom: 16px;
+
+        /* Header */
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 16px;
+            padding: 28px 36px;
+            color: white;
+            margin-bottom: 24px;
             display: flex;
             justify-content: space-between;
             align-items: center;
+            flex-wrap: wrap;
+            gap: 12px;
         }
-        .tag {
-            display: inline-block;
-            background: #ebf8ff;
-            color: #2b6cb0;
-            font-size: 12px;
-            padding: 2px 12px;
+        .header h1 {
+            font-size: 26px;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .header h1 small {
+            font-size: 14px;
+            font-weight: 400;
+            opacity: 0.85;
+        }
+        .header .badge {
+            background: rgba(255, 255, 255, 0.2);
+            padding: 6px 16px;
             border-radius: 20px;
-            font-weight: 500;
+            font-size: 13px;
         }
+
+        /* 主布局 */
+        .main-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+        @media (max-width: 900px) {
+            .main-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* 卡片 */
+        .card {
+            background: white;
+            border-radius: 14px;
+            padding: 24px;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.06);
+            border: 1px solid #e8ecf1;
+        }
+        .card-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: #2d3748;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding-bottom: 12px;
+            border-bottom: 2px solid #f0f4f8;
+        }
+        .card-title .badge-count {
+            font-size: 12px;
+            background: #edf2f7;
+            padding: 2px 12px;
+            border-radius: 12px;
+            font-weight: 400;
+            color: #4a5568;
+        }
+
+        /* 上传区 */
         .upload-area {
             border: 2px dashed #cbd5e0;
             border-radius: 12px;
-            padding: 30px 20px;
+            padding: 28px 20px;
             text-align: center;
             cursor: pointer;
             transition: all 0.3s;
             background: #fafcff;
-            position: relative;
         }
         .upload-area:hover {
-            border-color: #4299e1;
-            background: #ebf8ff;
+            border-color: #667eea;
+            background: #f7f8ff;
         }
         .upload-area .icon {
-            font-size: 40px;
-            margin-bottom: 8px;
+            font-size: 36px;
+            display: block;
         }
         .upload-area .text {
             color: #4a5568;
-            font-size: 16px;
+            font-size: 14px;
+            margin-top: 4px;
         }
         .upload-area .hint {
             color: #a0aec0;
-            font-size: 13px;
-            margin-top: 4px;
+            font-size: 12px;
+            margin-top: 2px;
         }
         #fileInput {
             display: none;
         }
-        .preview-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
-            gap: 12px;
-            margin-top: 16px;
-            max-height: 300px;
-            overflow-y: auto;
-            padding: 8px;
-        }
-        .preview-item {
-            position: relative;
-            border-radius: 8px;
-            overflow: hidden;
-            border: 2px solid #e2e8f0;
-            background: #f7fafc;
-            aspect-ratio: 1;
-        }
-        .preview-item img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-        }
-        .preview-item .remove-btn {
-            position: absolute;
-            top: 4px;
-            right: 4px;
-            width: 22px;
-            height: 22px;
-            border-radius: 50%;
-            background: rgba(229, 62, 62, 0.85);
-            color: white;
-            border: none;
-            cursor: pointer;
-            font-size: 14px;
-            line-height: 22px;
-            text-align: center;
-            transition: all 0.2s;
-        }
-        .preview-item .remove-btn:hover {
-            background: #e53e3e;
-            transform: scale(1.1);
-        }
-        .preview-item .index-badge {
-            position: absolute;
-            bottom: 4px;
-            left: 4px;
-            background: rgba(0, 0, 0, 0.7);
-            color: white;
-            font-size: 11px;
-            padding: 1px 8px;
-            border-radius: 10px;
-        }
-        .preview-item .status-badge {
-            position: absolute;
-            top: 4px;
-            left: 4px;
-            font-size: 10px;
-            padding: 1px 8px;
-            border-radius: 10px;
-            background: rgba(0, 0, 0, 0.6);
-            color: white;
-        }
-        .preview-item .status-badge.done {
-            background: rgba(56, 161, 105, 0.85);
-        }
-        .preview-item .status-badge.error {
-            background: rgba(229, 62, 62, 0.85);
-        }
-        .preview-item .status-badge.processing {
-            background: rgba(237, 137, 54, 0.85);
-        }
-        .btn-group {
+
+        /* 预览 */
+        .preview-box {
+            margin-top: 12px;
             display: flex;
-            gap: 12px;
-            margin-top: 16px;
+            gap: 10px;
             flex-wrap: wrap;
+            align-items: center;
         }
+        .preview-box img {
+            height: 80px;
+            width: 80px;
+            object-fit: cover;
+            border-radius: 8px;
+            border: 2px solid #e2e8f0;
+        }
+        .preview-box .file-name {
+            font-size: 13px;
+            color: #4a5568;
+        }
+        .preview-box .empty-hint {
+            color: #a0aec0;
+            font-size: 13px;
+        }
+
+        /* 识别文本 */
+        .ocr-text {
+            background: #f7fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            padding: 14px 16px;
+            min-height: 120px;
+            max-height: 200px;
+            overflow-y: auto;
+            font-size: 15px;
+            line-height: 1.8;
+            white-space: pre-wrap;
+            margin-top: 12px;
+            font-family: 'PingFang SC', 'Microsoft YaHei', sans-serif;
+        }
+        .ocr-text .placeholder {
+            color: #a0aec0;
+        }
+        .ocr-text .error {
+            color: #e53e3e;
+        }
+
+        /* 按钮 */
         .btn {
             padding: 10px 24px;
             border: none;
             border-radius: 10px;
-            font-size: 15px;
+            font-size: 14px;
             font-weight: 600;
             cursor: pointer;
             transition: all 0.2s;
-            display: flex;
+            display: inline-flex;
             align-items: center;
-            gap: 8px;
+            gap: 6px;
         }
         .btn-primary {
-            background: #4299e1;
+            background: #667eea;
             color: white;
         }
         .btn-primary:hover {
-            background: #3182ce;
+            background: #5a6fd6;
             transform: translateY(-1px);
-            box-shadow: 0 4px 12px rgba(66, 153, 225, 0.4);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.35);
         }
         .btn-primary:disabled {
             background: #a0aec0;
             cursor: not-allowed;
             transform: none;
             box-shadow: none;
+        }
+        .btn-success {
+            background: #48bb78;
+            color: white;
+        }
+        .btn-success:hover {
+            background: #38a169;
         }
         .btn-secondary {
             background: #edf2f7;
@@ -196,14 +213,12 @@
         .btn-secondary:hover {
             background: #e2e8f0;
         }
-        .btn-success {
-            background: #48bb78;
+        .btn-warning {
+            background: #ed8936;
             color: white;
         }
-        .btn-success:hover {
-            background: #38a169;
-            transform: translateY(-1px);
-            box-shadow: 0 4px 12px rgba(72, 187, 120, 0.4);
+        .btn-warning:hover {
+            background: #dd6b20;
         }
         .btn-danger {
             background: #fc8181;
@@ -212,73 +227,184 @@
         .btn-danger:hover {
             background: #e53e3e;
         }
-        .result-area {
-            margin-top: 20px;
+        .btn-group {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-top: 12px;
+        }
+
+        /* 模式切换 */
+        .mode-tabs {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 16px;
+        }
+        .mode-tab {
+            padding: 8px 20px;
+            border-radius: 8px;
+            border: 2px solid #e2e8f0;
+            background: white;
+            cursor: pointer;
+            font-weight: 500;
+            font-size: 14px;
+            transition: all 0.2s;
+            color: #4a5568;
+            flex: 1;
+            text-align: center;
+        }
+        .mode-tab:hover {
+            border-color: #b0c4de;
+        }
+        .mode-tab.active {
+            border-color: #667eea;
+            background: #667eea;
+            color: white;
+        }
+
+        /* 批改面板 */
+        .grading-panel {
             display: none;
         }
-        .result-area .label {
-            font-size: 14px;
-            font-weight: 600;
+        .grading-panel.active {
+            display: block;
+        }
+
+        /* 评分维度 */
+        .dimension-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin: 12px 0;
+        }
+        @media (max-width: 600px) {
+            .dimension-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+        .dimension-item {
+            background: #f7fafc;
+            border-radius: 8px;
+            padding: 10px 14px;
+            border: 1px solid #e2e8f0;
+        }
+        .dimension-item label {
+            font-size: 13px;
+            font-weight: 500;
             color: #4a5568;
-            margin-bottom: 8px;
             display: flex;
             justify-content: space-between;
             align-items: center;
         }
-        .result-box {
+        .dimension-item input[type="range"] {
+            width: 100%;
+            margin-top: 4px;
+            accent-color: #667eea;
+        }
+        .dimension-item .score-display {
+            font-weight: 700;
+            color: #667eea;
+            font-size: 16px;
+            min-width: 30px;
+            text-align: right;
+        }
+
+        /* 优缺点勾选 */
+        .checklist {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            margin: 6px 0 10px 0;
+        }
+        .checklist label {
+            display: flex;
+            align-items: center;
+            gap: 5px;
             background: #f7fafc;
-            border: 1px solid #e2e8f0;
-            border-radius: 10px;
-            padding: 16px 20px;
-            max-height: 400px;
-            overflow-y: auto;
-            font-size: 15px;
-            line-height: 1.8;
-            white-space: pre-wrap;
-            word-break: break-all;
-            font-family: 'Segoe UI', Roboto, 'PingFang SC', 'Microsoft YaHei', sans-serif;
-        }
-        .result-box .placeholder {
-            color: #a0aec0;
-        }
-        .result-box .error {
-            color: #e53e3e;
-        }
-        .result-item {
-            border-bottom: 1px solid #e2e8f0;
-            padding: 12px 0;
-        }
-        .result-item:last-child {
-            border-bottom: none;
-        }
-        .result-item .filename {
-            font-weight: 600;
-            color: #2d3748;
+            padding: 4px 12px 4px 8px;
+            border-radius: 16px;
             font-size: 13px;
+            cursor: pointer;
+            border: 1px solid #e2e8f0;
+            transition: all 0.2s;
+            user-select: none;
+        }
+        .checklist label:hover {
+            border-color: #667eea;
+            background: #f0f2ff;
+        }
+        .checklist label:has(input:checked) {
+            border-color: #667eea;
+            background: #eef0ff;
+        }
+        .checklist input {
+            accent-color: #667eea;
+            width: 14px;
+            height: 14px;
+        }
+
+        /* 评语框 */
+        .comment-box {
+            background: #f7fafc;
+            border-radius: 8px;
+            padding: 14px 16px;
+            min-height: 70px;
+            border: 1px solid #e2e8f0;
+            margin: 12px 0;
+            font-size: 14px;
+            line-height: 1.7;
+            white-space: pre-wrap;
+        }
+        .comment-box .label {
+            font-weight: 600;
+            color: #4a5568;
+            font-size: 12px;
             margin-bottom: 4px;
         }
-        .result-item .text {
-            color: #4a5568;
-            font-size: 14px;
-        }
-        .result-item .text .empty {
+        .comment-box .empty {
             color: #a0aec0;
-            font-style: italic;
         }
+
+        /* 总分 */
+        .total-score {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 16px;
+            padding: 16px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 12px;
+            color: white;
+            margin: 12px 0;
+        }
+        .total-score .number {
+            font-size: 44px;
+            font-weight: 800;
+        }
+        .total-score .label {
+            font-size: 14px;
+            opacity: 0.9;
+        }
+        .total-score .max {
+            font-size: 18px;
+            opacity: 0.7;
+        }
+
+        /* 状态栏 */
         .status-bar {
-            margin-top: 12px;
+            margin-top: 10px;
             font-size: 13px;
             color: #718096;
             display: flex;
             justify-content: space-between;
             align-items: center;
         }
-        .status-bar .spinner {
+        .spinner {
             display: none;
             width: 16px;
             height: 16px;
             border: 2px solid #edf2f7;
-            border-top: 2px solid #4299e1;
+            border-top: 2px solid #667eea;
             border-radius: 50%;
             animation: spin 0.8s linear infinite;
         }
@@ -287,473 +413,560 @@
                 transform: rotate(360deg);
             }
         }
-        .progress-bar {
-            width: 100%;
-            height: 6px;
-            background: #edf2f7;
-            border-radius: 3px;
-            margin-top: 12px;
-            overflow: hidden;
+
+        /* 描述文字 */
+        .desc-text {
+            color: #718096;
+            font-size: 13px;
+            margin-bottom: 10px;
+            line-height: 1.6;
         }
-        .progress-bar .fill {
-            height: 100%;
-            background: linear-gradient(90deg, #4299e1, #48bb78);
-            border-radius: 3px;
-            transition: width 0.3s;
-            width: 0%;
-        }
+
         .footer {
             margin-top: 24px;
             padding-top: 16px;
             border-top: 1px solid #edf2f7;
-            display: flex;
-            justify-content: space-between;
+            text-align: center;
             font-size: 12px;
             color: #a0aec0;
-            flex-wrap: wrap;
-            gap: 8px;
         }
-        .batch-info {
-            font-size: 13px;
-            color: #4a5568;
-        }
+
         @media (max-width: 600px) {
-            .container {
+            body {
+                padding: 12px;
+            }
+            .header {
+                padding: 18px 20px;
+            }
+            .header h1 {
+                font-size: 20px;
+                flex-wrap: wrap;
+            }
+            .header h1 small {
+                font-size: 12px;
+            }
+            .card {
                 padding: 16px;
             }
-            h1 {
-                font-size: 20px;
+            .total-score .number {
+                font-size: 32px;
             }
-            .preview-grid {
-                grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+            .btn {
+                padding: 8px 16px;
+                font-size: 13px;
             }
-            .btn-group {
-                flex-direction: column;
+            .mode-tab {
+                padding: 6px 12px;
+                font-size: 13px;
             }
         }
     </style>
 </head>
 <body>
 
-    <div class="container">
+<div class="container">
+    <!-- Header -->
+    <div class="header">
         <h1>
-            ✍️ 手写识别
-            <span class="tag">批量模式</span>
+            ✍️ 作文批改系统
+            <small>手写识别 + 智能批改</small>
         </h1>
-        <div class="subtitle">
-            <span>拍照或上传手写图片，自动识别文字</span>
-            <span class="batch-info">📸 最多 10 张</span>
-        </div>
+        <span class="badge">📝 支持图片上传</span>
+    </div>
 
-        <!-- 上传区域 -->
-        <div class="upload-area" id="dropZone">
-            <div class="icon">📤</div>
-            <div class="text">点击上传或拖拽图片</div>
-            <div class="hint">支持 JPG / PNG / BMP，最多 10 张</div>
-            <input type="file" id="fileInput" accept="image/*" multiple />
-        </div>
-
-        <!-- 图片预览 -->
-        <div class="preview-grid" id="previewGrid"></div>
-
-        <!-- 操作按钮 -->
-        <div class="btn-group">
-            <button class="btn btn-primary" id="recognizeBtn" disabled>🔍 开始识别</button>
-            <button class="btn btn-secondary" id="clearBtn">🗑️ 清空全部</button>
-            <button class="btn btn-success" id="copyBtn" style="display:none;">📋 复制全部结果</button>
-        </div>
-
-        <!-- 进度条 -->
-        <div class="progress-bar" id="progressBar">
-            <div class="fill" id="progressFill"></div>
-        </div>
-
-        <!-- 结果显示 -->
-        <div class="result-area" id="resultArea">
-            <div class="label">
-                <span>识别结果</span>
-                <span class="char-count" id="resultCount">0 张图片</span>
+    <div class="main-grid">
+        <!-- 左栏：上传与识别 -->
+        <div class="card">
+            <div class="card-title">
+                📄 作文识别
+                <span class="badge-count" id="fileCount">未上传</span>
             </div>
-            <div class="result-box" id="resultBox">
-                <span class="placeholder">等待识别...</span>
+
+            <div class="upload-area" id="dropZone">
+                <span class="icon">📤</span>
+                <div class="text">点击上传或拖拽作文图片</div>
+                <div class="hint">支持 JPG / PNG / BMP</div>
+                <input type="file" id="fileInput" accept="image/*" />
             </div>
+
+            <div class="preview-box" id="previewBox">
+                <span class="empty-hint">暂无图片</span>
+            </div>
+
+            <div class="btn-group">
+                <button class="btn btn-primary" id="recognizeBtn" disabled>🔍 识别文字</button>
+                <button class="btn btn-secondary" id="clearBtn">🗑️ 清空</button>
+            </div>
+
+            <div class="ocr-text" id="ocrText">
+                <span class="placeholder">识别后的作文内容将显示在这里...</span>
+            </div>
+
             <div class="status-bar">
                 <span id="statusText">就绪</span>
                 <div class="spinner" id="loadingSpinner"></div>
             </div>
         </div>
 
-        <div class="footer">
-            <span>⚡ 准确率 ≥ 95% · 百度OCR</span>
-            <span>数据通过百度云API处理</span>
+        <!-- 右栏：批改 -->
+        <div class="card">
+            <div class="card-title">
+                📊 作文批改
+                <span class="badge-count" id="gradingStatus">等待识别</span>
+            </div>
+
+            <!-- 模式切换 -->
+            <div class="mode-tabs">
+                <button class="mode-tab active" data-mode="ai" id="tabAi">🤖 智能批改</button>
+                <button class="mode-tab" data-mode="manual" id="tabManual">✏️ 手动批改</button>
+            </div>
+
+            <!-- ========== 智能批改面板 ========== -->
+            <div class="grading-panel active" id="panelAi">
+                <div class="desc-text">
+                    基于AI自动分析文章内容，给出评分和详细评语。
+                </div>
+                <div class="btn-group">
+                    <button class="btn btn-primary" id="aiGradeBtn" disabled>🤖 开始智能批改</button>
+                </div>
+                <div id="aiResult" style="margin-top:12px;display:none;">
+                    <div class="total-score">
+                        <span class="label">总分</span>
+                        <span class="number" id="aiTotalScore">0</span>
+                        <span class="max">/ 100</span>
+                    </div>
+                    <div class="dimension-grid" id="aiDimensions"></div>
+                    <div class="comment-box">
+                        <div class="label">📝 评语</div>
+                        <div id="aiComment" class="empty">等待批改...</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ========== 手动批改面板 ========== -->
+            <div class="grading-panel" id="panelManual">
+                <div class="desc-text">
+                    勾选优缺点，手动打分，系统自动生成评语。
+                </div>
+
+                <!-- 评分维度 -->
+                <div class="dimension-grid">
+                    <div class="dimension-item">
+                        <label>
+                            内容 (30分)
+                            <span class="score-display" id="scoreContent">22</span>
+                        </label>
+                        <input type="range" min="0" max="30" value="22" class="score-slider" data-dim="content" />
+                    </div>
+                    <div class="dimension-item">
+                        <label>
+                            结构 (25分)
+                            <span class="score-display" id="scoreStructure">18</span>
+                        </label>
+                        <input type="range" min="0" max="25" value="18" class="score-slider" data-dim="structure" />
+                    </div>
+                    <div class="dimension-item">
+                        <label>
+                            语言 (25分)
+                            <span class="score-display" id="scoreLanguage">18</span>
+                        </label>
+                        <input type="range" min="0" max="25" value="18" class="score-slider" data-dim="language" />
+                    </div>
+                    <div class="dimension-item">
+                        <label>
+                            书写 (20分)
+                            <span class="score-display" id="scoreWriting">14</span>
+                        </label>
+                        <input type="range" min="0" max="20" value="14" class="score-slider" data-dim="writing" />
+                    </div>
+                </div>
+
+                <!-- 优缺点 -->
+                <div style="margin:4px 0;">
+                    <div style="font-size:13px;font-weight:500;color:#4a5568;margin-bottom:4px;">✅ 优点</div>
+                    <div class="checklist" id="prosChecklist">
+                        <label><input type="checkbox" value="主题明确" /> <span>主题明确</span></label>
+                        <label><input type="checkbox" value="结构清晰" /> <span>结构清晰</span></label>
+                        <label><input type="checkbox" value="语言生动" /> <span>语言生动</span></label>
+                        <label><input type="checkbox" value="论证充分" /> <span>论证充分</span></label>
+                        <label><input type="checkbox" value="情感真挚" /> <span>情感真挚</span></label>
+                        <label><input type="checkbox" value="书写工整" /> <span>书写工整</span></label>
+                    </div>
+                </div>
+                <div style="margin:4px 0;">
+                    <div style="font-size:13px;font-weight:500;color:#4a5568;margin-bottom:4px;">⚠️ 待改进</div>
+                    <div class="checklist" id="consChecklist">
+                        <label><input type="checkbox" value="主题不够明确" /> <span>主题不够明确</span></label>
+                        <label><input type="checkbox" value="结构混乱" /> <span>结构混乱</span></label>
+                        <label><input type="checkbox" value="语言平淡" /> <span>语言平淡</span></label>
+                        <label><input type="checkbox" value="论证不足" /> <span>论证不足</span></label>
+                        <label><input type="checkbox" value="情感表达欠缺" /> <span>情感表达欠缺</span></label>
+                        <label><input type="checkbox" value="书写潦草" /> <span>书写潦草</span></label>
+                    </div>
+                </div>
+
+                <div class="btn-group">
+                    <button class="btn btn-warning" id="manualGradeBtn" disabled>✏️ 生成批改</button>
+                </div>
+
+                <div id="manualResult" style="margin-top:12px;display:none;">
+                    <div class="total-score">
+                        <span class="label">总分</span>
+                        <span class="number" id="manualTotalScore">0</span>
+                        <span class="max">/ 100</span>
+                    </div>
+                    <div class="comment-box">
+                        <div class="label">📝 评语</div>
+                        <div id="manualComment" class="empty">等待生成...</div>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 
-    <script>
-        // ========================================
-        //  DOM 引用
-        // ========================================
-        const dropZone = document.getElementById('dropZone');
-        const fileInput = document.getElementById('fileInput');
-        const previewGrid = document.getElementById('previewGrid');
-        const recognizeBtn = document.getElementById('recognizeBtn');
-        const clearBtn = document.getElementById('clearBtn');
-        const copyBtn = document.getElementById('copyBtn');
-        const resultArea = document.getElementById('resultArea');
-        const resultBox = document.getElementById('resultBox');
-        const resultCount = document.getElementById('resultCount');
-        const statusText = document.getElementById('statusText');
-        const loadingSpinner = document.getElementById('loadingSpinner');
-        const progressFill = document.getElementById('progressFill');
+    <div class="footer">
+        ⚡ 准确率 ≥ 95% · 百度OCR · 支持智能/手动批改
+    </div>
+</div>
 
-        let fileList = []; // 存储 { id, file, dataUrl, status, result }
-        let isProcessing = false;
-        let fileIdCounter = 0;
+<script>
+    // ========================================
+    // DOM引用
+    // ========================================
+    const dropZone = document.getElementById('dropZone');
+    const fileInput = document.getElementById('fileInput');
+    const previewBox = document.getElementById('previewBox');
+    const recognizeBtn = document.getElementById('recognizeBtn');
+    const clearBtn = document.getElementById('clearBtn');
+    const ocrText = document.getElementById('ocrText');
+    const statusText = document.getElementById('statusText');
+    const loadingSpinner = document.getElementById('loadingSpinner');
+    const fileCount = document.getElementById('fileCount');
+    const gradingStatus = document.getElementById('gradingStatus');
 
-        // ========================================
-        //  上传交互
-        // ========================================
-        dropZone.addEventListener('click', () => fileInput.click());
+    const tabAi = document.getElementById('tabAi');
+    const tabManual = document.getElementById('tabManual');
+    const panelAi = document.getElementById('panelAi');
+    const panelManual = document.getElementById('panelManual');
+    const aiGradeBtn = document.getElementById('aiGradeBtn');
+    const manualGradeBtn = document.getElementById('manualGradeBtn');
+    const aiResult = document.getElementById('aiResult');
+    const manualResult = document.getElementById('manualResult');
 
-        dropZone.addEventListener('dragover', (e) => {
-            e.preventDefault();
-            dropZone.classList.add('dragover');
-        });
-        dropZone.addEventListener('dragleave', () => {
-            dropZone.classList.remove('dragover');
-        });
-        dropZone.addEventListener('drop', (e) => {
-            e.preventDefault();
-            dropZone.classList.remove('dragover');
-            if (e.dataTransfer.files.length) {
-                handleFiles(e.dataTransfer.files);
-            }
-        });
+    let currentFile = null;
+    let currentText = '';
 
-        fileInput.addEventListener('change', (e) => {
-            if (e.target.files.length) {
-                handleFiles(e.target.files);
-                fileInput.value = '';
-            }
-        });
+    // ========================================
+    // 上传
+    // ========================================
+    dropZone.addEventListener('click', () => fileInput.click());
 
-        // ========================================
-        //  文件处理
-        // ========================================
-        function handleFiles(files) {
-            const remaining = 10 - fileList.length;
-            if (remaining <= 0) {
-                alert('最多只能上传 10 张图片！');
-                return;
-            }
+    dropZone.addEventListener('dragover', (e) => {
+        e.preventDefault();
+        dropZone.style.borderColor = '#667eea';
+        dropZone.style.background = '#f0f2ff';
+    });
+    dropZone.addEventListener('dragleave', () => {
+        dropZone.style.borderColor = '#cbd5e0';
+        dropZone.style.background = '#fafcff';
+    });
+    dropZone.addEventListener('drop', (e) => {
+        e.preventDefault();
+        dropZone.style.borderColor = '#cbd5e0';
+        dropZone.style.background = '#fafcff';
+        if (e.dataTransfer.files.length) handleFile(e.dataTransfer.files[0]);
+    });
 
-            let added = 0;
-            for (const file of files) {
-                if (added >= remaining) break;
-                if (!file.type.startsWith('image/')) continue;
-
-                const reader = new FileReader();
-                reader.onload = (e) => {
-                    fileList.push({
-                        id: fileIdCounter++,
-                        file: file,
-                        dataUrl: e.target.result,
-                        status: 'pending', // pending | processing | done | error
-                        result: null,
-                        error: null
-                    });
-                    renderPreview();
-                    updateButtons();
-                };
-                reader.readAsDataURL(file);
-                added++;
-            }
-
-            if (added === 0 && files.length > 0) {
-                alert('请上传图片文件（JPG/PNG/BMP）');
-            }
+    fileInput.addEventListener('change', (e) => {
+        if (e.target.files.length) {
+            handleFile(e.target.files[0]);
+            fileInput.value = '';
         }
+    });
 
-        // ========================================
-        //  渲染预览
-        // ========================================
-        function renderPreview() {
-            previewGrid.innerHTML = '';
-            fileList.forEach((item) => {
-                const div = document.createElement('div');
-                div.className = 'preview-item';
-
-                const img = document.createElement('img');
-                img.src = item.dataUrl;
-                div.appendChild(img);
-
-                const removeBtn = document.createElement('button');
-                removeBtn.className = 'remove-btn';
-                removeBtn.textContent = '×';
-                removeBtn.onclick = (e) => {
-                    e.stopPropagation();
-                    removeFile(item.id);
-                };
-                div.appendChild(removeBtn);
-
-                const indexBadge = document.createElement('span');
-                indexBadge.className = 'index-badge';
-                const idx = fileList.indexOf(item) + 1;
-                indexBadge.textContent = `#${idx}`;
-                div.appendChild(indexBadge);
-
-                const statusBadge = document.createElement('span');
-                statusBadge.className = 'status-badge';
-                if (item.status === 'pending') {
-                    statusBadge.textContent = '⏳ 待识别';
-                } else if (item.status === 'processing') {
-                    statusBadge.textContent = '⏳ 识别中';
-                    statusBadge.className += ' processing';
-                } else if (item.status === 'done') {
-                    statusBadge.textContent = '✅ 完成';
-                    statusBadge.className += ' done';
-                } else if (item.status === 'error') {
-                    statusBadge.textContent = '❌ 失败';
-                    statusBadge.className += ' error';
-                }
-                div.appendChild(statusBadge);
-
-                previewGrid.appendChild(div);
-            });
-
-            // 显示/隐藏上传区域
-            dropZone.style.display = fileList.length >= 10 ? 'none' : 'block';
+    function handleFile(file) {
+        if (!file.type.startsWith('image/')) {
+            alert('请上传图片文件');
+            return;
         }
-
-        // ========================================
-        //  移除文件
-        // ========================================
-        function removeFile(id) {
-            if (isProcessing) {
-                alert('识别进行中，请等待完成');
-                return;
-            }
-            fileList = fileList.filter(item => item.id !== id);
-            renderPreview();
-            updateButtons();
-            if (fileList.length === 0) {
-                resultArea.style.display = 'none';
-                copyBtn.style.display = 'none';
-            }
-        }
-
-        // ========================================
-        //  更新按钮状态
-        // ========================================
-        function updateButtons() {
-            const hasPending = fileList.some(item => item.status === 'pending');
-            recognizeBtn.disabled = fileList.length === 0 || isProcessing || !hasPending;
-            clearBtn.disabled = fileList.length === 0 || isProcessing;
-        }
-
-        // ========================================
-        //  核心识别函数（批量）
-        // ========================================
-        async function recognize() {
-            if (isProcessing) return;
-            if (fileList.length === 0) {
-                alert('请先上传图片');
-                return;
-            }
-
-            const pendingItems = fileList.filter(item => item.status === 'pending');
-            if (pendingItems.length === 0) {
-                alert('所有图片已识别完成');
-                return;
-            }
-
-            isProcessing = true;
-            recognizeBtn.disabled = true;
-            loadingSpinner.style.display = 'block';
-            statusText.textContent = '正在识别...';
-            resultArea.style.display = 'block';
-            resultBox.innerHTML = '<span style="color:#718096;">⏳ 批量识别中，请稍候...</span>';
-            copyBtn.style.display = 'none';
-            progressFill.style.width = '0%';
-
-            const total = pendingItems.length;
-            let completed = 0;
-
-            // 逐个识别
-            for (let i = 0; i < pendingItems.length; i++) {
-                const item = pendingItems[i];
-                const idx = fileList.indexOf(item);
-
-                // 更新状态为处理中
-                item.status = 'processing';
-                renderPreview();
-
-                try {
-                    const formData = new FormData();
-                    formData.append('image', item.file);
-
-                    const response = await fetch('/ocr', {
-                        method: 'POST',
-                        body: formData
-                    });
-
-                    const data = await response.json();
-
-                    if (data.code === 0 && data.result) {
-                        item.status = 'done';
-                        item.result = data.result;
-                        item.error = null;
-                    } else {
-                        item.status = 'error';
-                        item.result = null;
-                        item.error = data.msg || '识别失败';
-                    }
-                } catch (error) {
-                    item.status = 'error';
-                    item.result = null;
-                    item.error = error.message || '网络错误';
-                }
-
-                completed++;
-                progressFill.style.width = `${(completed / total) * 100}%`;
-                renderPreview();
-                statusText.textContent = `识别中 ${completed}/${total}`;
-
-                // 更新结果展示
-                displayResults();
-            }
-
-            // 完成
-            isProcessing = false;
-            loadingSpinner.style.display = 'none';
-            statusText.textContent = '✅ 识别完成';
+        currentFile = file;
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            previewBox.innerHTML = `
+                <img src="${e.target.result}" alt="预览" />
+                <span class="file-name">${file.name}</span>
+            `;
             recognizeBtn.disabled = false;
-            updateButtons();
+            fileCount.textContent = '1 张';
+            statusText.textContent = '已上传，点击识别';
+            ocrText.innerHTML = '<span class="placeholder">点击"识别文字"开始OCR...</span>';
+            aiResult.style.display = 'none';
+            manualResult.style.display = 'none';
+            aiGradeBtn.disabled = true;
+            manualGradeBtn.disabled = true;
+            gradingStatus.textContent = '等待识别';
+        };
+        reader.readAsDataURL(file);
+    }
 
-            const doneCount = fileList.filter(item => item.status === 'done').length;
-            const errorCount = fileList.filter(item => item.status === 'error').length;
-            if (doneCount > 0) {
-                copyBtn.style.display = 'inline-flex';
-            }
-            statusText.textContent = `✅ 完成：${doneCount} 张成功${errorCount > 0 ? `，${errorCount} 张失败` : ''}`;
+    // ========================================
+    // 识别
+    // ========================================
+    async function recognize() {
+        if (!currentFile) {
+            alert('请先上传图片');
+            return;
         }
 
-        // ========================================
-        //  显示结果
-        // ========================================
-        function displayResults() {
-            const doneItems = fileList.filter(item => item.status === 'done');
-            const errorItems = fileList.filter(item => item.status === 'error');
+        recognizeBtn.disabled = true;
+        loadingSpinner.style.display = 'block';
+        statusText.textContent = '识别中...';
+        ocrText.innerHTML = '<span style="color:#718096;">⏳ 识别中...</span>';
 
-            if (doneItems.length === 0 && errorItems.length === 0) {
-                resultBox.innerHTML = '<span class="placeholder">等待识别...</span>';
-                resultCount.textContent = '0 张图片';
-                return;
-            }
+        const formData = new FormData();
+        formData.append('image', currentFile);
 
-            let html = '';
-            fileList.forEach((item, index) => {
-                if (item.status === 'done') {
-                    html += `
-                        <div class="result-item">
-                            <div class="filename">📄 图片 ${index + 1} ✅</div>
-                            <div class="text">${item.result || '<span class="empty">(空结果)</span>'}</div>
-                        </div>
-                    `;
-                } else if (item.status === 'error') {
-                    html += `
-                        <div class="result-item">
-                            <div class="filename">📄 图片 ${index + 1} ❌</div>
-                            <div class="text" style="color:#e53e3e;">错误：${item.error || '未知错误'}</div>
-                        </div>
-                    `;
-                } else if (item.status === 'processing') {
-                    html += `
-                        <div class="result-item">
-                            <div class="filename">📄 图片 ${index + 1} ⏳</div>
-                            <div class="text" style="color:#ed8936;">识别中...</div>
-                        </div>
-                    `;
-                } else {
-                    html += `
-                        <div class="result-item">
-                            <div class="filename">📄 图片 ${index + 1} ⏳</div>
-                            <div class="text" style="color:#a0aec0;">等待识别</div>
-                        </div>
-                    `;
-                }
+        try {
+            const response = await fetch('/ocr', {
+                method: 'POST',
+                body: formData
             });
+            const data = await response.json();
 
-            resultBox.innerHTML = html;
-            const total = fileList.length;
-            const done = fileList.filter(item => item.status === 'done').length;
-            resultCount.textContent = `${done}/${total} 张成功`;
+            if (data.code === 0 && data.result) {
+                currentText = data.result;
+                ocrText.innerHTML = currentText;
+                statusText.textContent = '✅ 识别完成';
+                fileCount.textContent = '已识别';
+                aiGradeBtn.disabled = false;
+                manualGradeBtn.disabled = false;
+                gradingStatus.textContent = '可批改';
+            } else {
+                ocrText.innerHTML = `<span class="error">❌ ${data.msg || '识别失败'}</span>`;
+                statusText.textContent = '❌ 识别失败';
+            }
+        } catch (error) {
+            ocrText.innerHTML = `<span class="error">❌ 网络错误：${error.message}</span>`;
+            statusText.textContent = '❌ 请求失败';
+        } finally {
+            recognizeBtn.disabled = false;
+            loadingSpinner.style.display = 'none';
+        }
+    }
+
+    // ========================================
+    // 清空
+    // ========================================
+    function clearAll() {
+        currentFile = null;
+        currentText = '';
+        previewBox.innerHTML = '<span class="empty-hint">暂无图片</span>';
+        ocrText.innerHTML = '<span class="placeholder">识别后的作文内容将显示在这里...</span>';
+        recognizeBtn.disabled = true;
+        aiGradeBtn.disabled = true;
+        manualGradeBtn.disabled = true;
+        aiResult.style.display = 'none';
+        manualResult.style.display = 'none';
+        fileCount.textContent = '未上传';
+        statusText.textContent = '就绪';
+        gradingStatus.textContent = '等待识别';
+    }
+
+    // ========================================
+    // 模式切换
+    // ========================================
+    tabAi.addEventListener('click', () => {
+        tabAi.classList.add('active');
+        tabManual.classList.remove('active');
+        panelAi.classList.add('active');
+        panelManual.classList.remove('active');
+    });
+    tabManual.addEventListener('click', () => {
+        tabManual.classList.add('active');
+        tabAi.classList.remove('active');
+        panelManual.classList.add('active');
+        panelAi.classList.remove('active');
+    });
+
+    // ========================================
+    // 手动批改 - 滑块
+    // ========================================
+    document.querySelectorAll('.score-slider').forEach(slider => {
+        slider.addEventListener('input', function() {
+            const dim = this.dataset.dim;
+            const map = {
+                'content': 'scoreContent',
+                'structure': 'scoreStructure',
+                'language': 'scoreLanguage',
+                'writing': 'scoreWriting'
+            };
+            const display = document.getElementById(map[dim]);
+            if (display) display.textContent = this.value;
+            updateManualTotal();
+        });
+    });
+
+    function updateManualTotal() {
+        const content = parseInt(document.getElementById('scoreContent').textContent) || 0;
+        const structure = parseInt(document.getElementById('scoreStructure').textContent) || 0;
+        const language = parseInt(document.getElementById('scoreLanguage').textContent) || 0;
+        const writing = parseInt(document.getElementById('scoreWriting').textContent) || 0;
+        const total = content + structure + language + writing;
+        document.getElementById('manualTotalScore').textContent = total;
+        return total;
+    }
+
+    // ========================================
+    // 手动批改 - 生成评语
+    // ========================================
+    function generateManualComment() {
+        const pros = [];
+        document.querySelectorAll('#prosChecklist input:checked').forEach(cb => pros.push(cb.value));
+        const cons = [];
+        document.querySelectorAll('#consChecklist input:checked').forEach(cb => cons.push(cb.value));
+
+        const total = updateManualTotal();
+        let comment = '';
+
+        let level = '';
+        if (total >= 90) level = '🌟 优秀';
+        else if (total >= 80) level = '👍 良好';
+        else if (total >= 70) level = '📖 中等';
+        else if (total >= 60) level = '📝 及格';
+        else level = '💪 需要努力';
+
+        comment += `【综合评价】${level}\n\n`;
+
+        if (pros.length > 0) {
+            comment += `✅ 优点：${pros.join('、')}。\n`;
+        }
+        if (cons.length > 0) {
+            comment += `⚠️ 待改进：${cons.join('、')}。\n`;
+        }
+        if (pros.length === 0 && cons.length === 0) {
+            comment += '请勾选优缺点以生成详细评语。\n';
         }
 
-        // ========================================
-        //  清空
-        // ========================================
-        function clearAll() {
-            if (isProcessing) {
-                alert('识别进行中，请等待完成');
-                return;
-            }
-            if (fileList.length > 0 && !confirm('确定要清空所有图片吗？')) {
-                return;
-            }
-            fileList = [];
-            renderPreview();
-            updateButtons();
-            resultArea.style.display = 'none';
-            copyBtn.style.display = 'none';
-            progressFill.style.width = '0%';
-            statusText.textContent = '就绪';
-            resultCount.textContent = '0 张图片';
+        if (total >= 80) {
+            comment += '\n📌 文章整体质量较高，继续保持！';
+        } else if (total >= 60) {
+            comment += '\n📌 文章有提升空间，针对待改进项加强练习。';
+        } else {
+            comment += '\n📌 建议从基础入手，多阅读优秀范文。';
         }
 
-        // ========================================
-        //  复制结果
-        // ========================================
-        function copyResult() {
-            const doneItems = fileList.filter(item => item.status === 'done');
-            if (doneItems.length === 0) {
-                alert('没有可复制的结果');
-                return;
-            }
+        return comment;
+    }
 
-            let text = '';
-            doneItems.forEach((item, index) => {
-                text += `【图片 ${index + 1}】\n${item.result || ''}\n\n`;
+    // ========================================
+    // 手动批改 - 执行
+    // ========================================
+    function manualGrade() {
+        if (!currentText) {
+            alert('请先识别作文内容');
+            return;
+        }
+        if (currentText.trim().length < 10) {
+            alert('作文内容太短，请上传清晰的作文图片');
+            return;
+        }
+
+        const total = updateManualTotal();
+        const comment = generateManualComment();
+
+        document.getElementById('manualTotalScore').textContent = total;
+        document.getElementById('manualComment').textContent = comment;
+        manualResult.style.display = 'block';
+        gradingStatus.textContent = `已批改 ${total}分`;
+    }
+
+    // ========================================
+    // 智能批改
+    // ========================================
+    async function aiGrade() {
+        if (!currentText) {
+            alert('请先识别作文内容');
+            return;
+        }
+        if (currentText.trim().length < 10) {
+            alert('作文内容太短，请上传清晰的作文图片');
+            return;
+        }
+
+        aiGradeBtn.disabled = true;
+        aiGradeBtn.textContent = '⏳ 批改中...';
+        aiResult.style.display = 'block';
+        document.getElementById('aiComment').textContent = '⏳ AI正在分析文章...';
+        document.getElementById('aiComment').className = '';
+
+        try {
+            // 调用后端智能批改接口
+            const response = await fetch('/ai_grade', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ content: currentText })
             });
+            const data = await response.json();
 
-            navigator.clipboard.writeText(text).then(() => {
-                const orig = copyBtn.textContent;
-                copyBtn.textContent = '✅ 已复制';
-                setTimeout(() => { copyBtn.textContent = orig; }, 1500);
-            }).catch(() => {
-                // 降级方案
-                const temp = document.createElement('textarea');
-                temp.value = text;
-                document.body.appendChild(temp);
-                temp.select();
-                document.execCommand('copy');
-                temp.remove();
-                alert('已复制到剪贴板');
-            });
+            if (data.code === 0 && data.data) {
+                const grade = data.data;
+                const total = grade.total_score || 75;
+                const dims = grade.dimensions || { content: 22, structure: 18, language: 18, writing: 14 };
+
+                document.getElementById('aiTotalScore').textContent = total;
+
+                const dimMap = [
+                    { key: 'content', name: '内容', max: 30 },
+                    { key: 'structure', name: '结构', max: 25 },
+                    { key: 'language', name: '语言', max: 25 },
+                    { key: 'writing', name: '书写', max: 20 }
+                ];
+
+                let dimHtml = '';
+                dimMap.forEach(d => {
+                    const score = dims[d.key] || 0;
+                    const pct = Math.min(100, (score / d.max) * 100);
+                    const color = pct > 70 ? '#48bb78' : pct > 50 ? '#ed8936' : '#e53e3e';
+                    dimHtml += `
+                        <div class="dimension-item">
+                            <label>${d.name} <span style="color:#667eea;font-weight:700;">${score}/${d.max}</span></label>
+                            <div style="height:4px;background:#e2e8f0;border-radius:2px;margin-top:4px;">
+                                <div style="height:100%;width:${pct}%;background:${color};border-radius:2px;transition:width 0.5s;"></div>
+                            </div>
+                        </div>
+                    `;
+                });
+                document.getElementById('aiDimensions').innerHTML = dimHtml;
+
+                const comment = grade.comment || 'AI分析完成，暂无详细评语。';
+                document.getElementById('aiComment').textContent = comment;
+                document.getElementById('aiComment').className = '';
+                gradingStatus.textContent = `AI批改 ${total}分`;
+            } else {
+                document.getElementById('aiComment').textContent = `❌ ${data.msg || '批改失败'}`;
+                document.getElementById('aiComment').className = 'error';
+            }
+        } catch (error) {
+            document.getElementById('aiComment').textContent = `❌ 网络错误：${error.message}`;
+            document.getElementById('aiComment').className = 'error';
+        } finally {
+            aiGradeBtn.disabled = false;
+            aiGradeBtn.textContent = '🤖 开始智能批改';
         }
+    }
 
-        // ========================================
-        //  绑定事件
-        // ========================================
-        recognizeBtn.addEventListener('click', recognize);
-        clearBtn.addEventListener('click', clearAll);
-        copyBtn.addEventListener('click', copyResult);
+    // ========================================
+    // 绑定事件
+    // ========================================
+    recognizeBtn.addEventListener('click', recognize);
+    clearBtn.addEventListener('click', clearAll);
+    aiGradeBtn.addEventListener('click', aiGrade);
+    manualGradeBtn.addEventListener('click', manualGrade);
 
-        // 初始化
-        renderPreview();
-        updateButtons();
-        console.log('📝 手写识别工具已加载（批量模式）');
-    </script>
+    // 初始化
+    clearAll();
+    console.log('✍️ 作文批改系统已加载');
+</script>
 
 </body>
 </html>

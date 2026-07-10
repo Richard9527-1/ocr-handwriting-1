@@ -1,0 +1,484 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>手写文字识别工具</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #f0f4f8;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        .container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.1);
+            padding: 40px;
+            max-width: 700px;
+            width: 100%;
+        }
+        h1 {
+            font-size: 28px;
+            font-weight: 600;
+            color: #1a202c;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .subtitle {
+            color: #718096;
+            font-size: 14px;
+            margin-bottom: 30px;
+            border-bottom: 2px solid #edf2f7;
+            padding-bottom: 16px;
+        }
+        .upload-area {
+            border: 2px dashed #cbd5e0;
+            border-radius: 12px;
+            padding: 40px 20px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            background: #fafcff;
+            position: relative;
+        }
+        .upload-area:hover {
+            border-color: #4299e1;
+            background: #ebf8ff;
+        }
+        .upload-area.dragover {
+            border-color: #4299e1;
+            background: #ebf8ff;
+        }
+        .upload-area .icon {
+            font-size: 48px;
+            margin-bottom: 10px;
+        }
+        .upload-area .text {
+            color: #4a5568;
+            font-size: 16px;
+        }
+        .upload-area .hint {
+            color: #a0aec0;
+            font-size: 13px;
+            margin-top: 6px;
+        }
+        #fileInput {
+            display: none;
+        }
+        .preview-area {
+            margin-top: 20px;
+            display: none;
+            border-radius: 12px;
+            overflow: hidden;
+            background: #f7fafc;
+            padding: 12px;
+            border: 1px solid #e2e8f0;
+        }
+        .preview-area img {
+            max-width: 100%;
+            max-height: 300px;
+            display: block;
+            margin: 0 auto;
+            border-radius: 8px;
+        }
+        .preview-area .filename {
+            text-align: center;
+            color: #4a5568;
+            font-size: 13px;
+            margin-top: 8px;
+        }
+        .btn-group {
+            display: flex;
+            gap: 12px;
+            margin-top: 20px;
+            flex-wrap: wrap;
+        }
+        .btn {
+            flex: 1;
+            min-width: 120px;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+        .btn-primary {
+            background: #4299e1;
+            color: white;
+        }
+        .btn-primary:hover {
+            background: #3182ce;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(66, 153, 225, 0.4);
+        }
+        .btn-primary:disabled {
+            background: #a0aec0;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+        .btn-secondary {
+            background: #edf2f7;
+            color: #2d3748;
+        }
+        .btn-secondary:hover {
+            background: #e2e8f0;
+        }
+        .btn-success {
+            background: #48bb78;
+            color: white;
+        }
+        .btn-success:hover {
+            background: #38a169;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(72, 187, 120, 0.4);
+        }
+        .result-area {
+            margin-top: 24px;
+            display: none;
+        }
+        .result-area .label {
+            font-size: 14px;
+            font-weight: 600;
+            color: #4a5568;
+            margin-bottom: 8px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .result-area .label .char-count {
+            font-weight: 400;
+            color: #a0aec0;
+            font-size: 13px;
+        }
+        .result-box {
+            background: #f7fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 10px;
+            padding: 16px 20px;
+            min-height: 100px;
+            max-height: 300px;
+            overflow-y: auto;
+            font-size: 16px;
+            line-height: 1.8;
+            white-space: pre-wrap;
+            word-break: break-all;
+            font-family: 'Segoe UI', Roboto, 'PingFang SC', 'Microsoft YaHei', sans-serif;
+        }
+        .result-box .placeholder {
+            color: #a0aec0;
+        }
+        .result-box .error {
+            color: #e53e3e;
+        }
+        .status-bar {
+            margin-top: 12px;
+            font-size: 13px;
+            color: #718096;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .status-bar .spinner {
+            display: none;
+            width: 16px;
+            height: 16px;
+            border: 2px solid #edf2f7;
+            border-top: 2px solid #4299e1;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+        .tag {
+            display: inline-block;
+            background: #ebf8ff;
+            color: #2b6cb0;
+            font-size: 12px;
+            padding: 2px 12px;
+            border-radius: 20px;
+            font-weight: 500;
+        }
+        .footer {
+            margin-top: 30px;
+            padding-top: 16px;
+            border-top: 1px solid #edf2f7;
+            display: flex;
+            justify-content: space-between;
+            font-size: 12px;
+            color: #a0aec0;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+        @media (max-width: 600px) {
+            .container {
+                padding: 20px;
+            }
+            h1 {
+                font-size: 22px;
+            }
+            .btn-group {
+                flex-direction: column;
+            }
+            .btn {
+                min-width: unset;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1>
+            ✍️ 手写识别
+            <span class="tag">百度OCR</span>
+        </h1>
+        <div class="subtitle">拍照或上传手写图片，自动识别文字</div>
+
+        <!-- 上传区域 -->
+        <div class="upload-area" id="dropZone">
+            <div class="icon">📤</div>
+            <div class="text">点击上传或拖拽图片</div>
+            <div class="hint">支持 JPG / PNG / BMP，建议清晰度越高越好</div>
+            <input type="file" id="fileInput" accept="image/*" />
+        </div>
+
+        <!-- 图片预览 -->
+        <div class="preview-area" id="previewArea">
+            <img id="previewImg" src="" alt="预览" />
+            <div class="filename" id="fileName">未命名图片</div>
+        </div>
+
+        <!-- 操作按钮 -->
+        <div class="btn-group">
+            <button class="btn btn-primary" id="recognizeBtn">🔍 开始识别</button>
+            <button class="btn btn-secondary" id="clearBtn">🗑️ 清空</button>
+            <button class="btn btn-success" id="copyBtn" style="display:none;">📋 复制结果</button>
+        </div>
+
+        <!-- 结果显示 -->
+        <div class="result-area" id="resultArea">
+            <div class="label">
+                <span>识别结果</span>
+                <span class="char-count" id="charCount">0 字符</span>
+            </div>
+            <div class="result-box" id="resultBox">
+                <span class="placeholder">等待识别...</span>
+            </div>
+            <div class="status-bar">
+                <span id="statusText">就绪</span>
+                <div class="spinner" id="loadingSpinner"></div>
+            </div>
+        </div>
+
+        <div class="footer">
+            <span>⚡ 准确率 ≥ 95% · 每日 500 次免费</span>
+            <span>数据通过百度云API处理</span>
+        </div>
+    </div>
+
+    <script>
+        // ========================================
+        //  DOM 引用
+        // ========================================
+        const dropZone = document.getElementById('dropZone');
+        const fileInput = document.getElementById('fileInput');
+        const previewArea = document.getElementById('previewArea');
+        const previewImg = document.getElementById('previewImg');
+        const fileName = document.getElementById('fileName');
+        const recognizeBtn = document.getElementById('recognizeBtn');
+        const clearBtn = document.getElementById('clearBtn');
+        const copyBtn = document.getElementById('copyBtn');
+        const resultArea = document.getElementById('resultArea');
+        const resultBox = document.getElementById('resultBox');
+        const charCount = document.getElementById('charCount');
+        const statusText = document.getElementById('statusText');
+        const loadingSpinner = document.getElementById('loadingSpinner');
+
+        let currentFile = null;
+
+        // ========================================
+        //  上传交互
+        // ========================================
+        dropZone.addEventListener('click', () => fileInput.click());
+
+        dropZone.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            dropZone.classList.add('dragover');
+        });
+        dropZone.addEventListener('dragleave', () => {
+            dropZone.classList.remove('dragover');
+        });
+        dropZone.addEventListener('drop', (e) => {
+            e.preventDefault();
+            dropZone.classList.remove('dragover');
+            if (e.dataTransfer.files.length) {
+                handleFile(e.dataTransfer.files[0]);
+            }
+        });
+
+        fileInput.addEventListener('change', (e) => {
+            if (e.target.files.length) {
+                handleFile(e.target.files[0]);
+            }
+        });
+
+        // ========================================
+        //  文件处理
+        // ========================================
+        function handleFile(file) {
+            if (!file.type.startsWith('image/')) {
+                alert('请上传图片文件');
+                return;
+            }
+            currentFile = file;
+
+            // 预览
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                previewImg.src = e.target.result;
+                fileName.textContent = file.name + ` (${(file.size / 1024).toFixed(1)} KB)`;
+                previewArea.style.display = 'block';
+                dropZone.style.display = 'none';
+                recognizeBtn.disabled = false;
+                statusText.textContent = '已上传，点击识别';
+                copyBtn.style.display = 'none';
+                // 清空旧结果
+                resultBox.innerHTML = '<span class="placeholder">等待识别...</span>';
+                charCount.textContent = '0 字符';
+            };
+            reader.readAsDataURL(file);
+        }
+
+        // ========================================
+        //  核心识别函数
+        // ========================================
+        async function recognize() {
+    if (!currentFile) {
+        alert('请先上传图片');
+        return;
+    }
+
+    recognizeBtn.disabled = true;
+    recognizeBtn.textContent = '⏳ 识别中...';
+    loadingSpinner.style.display = 'block';
+    statusText.textContent = '正在识别，请稍候...';
+    resultBox.innerHTML = '<span style="color:#718096;">⏳ 识别中...</span>';
+
+    const formData = new FormData();
+    formData.append('image', currentFile);
+
+    try {
+        // ==========================================
+        // 修改这里：把 '/ocr' 改为完整的后端地址
+        // ==========================================
+        const response = await fetch('http://127.0.0.1:5000/ocr', {
+            method: 'POST',
+            body: formData
+        });
+
+        const data = await response.json();
+
+        if (data.code === 0 && data.result) {
+            const text = data.result;
+            resultBox.innerHTML = text;
+            const count = text.replace(/\n/g, '').length;
+            charCount.textContent = count + ' 字符';
+            statusText.textContent = '✅ 识别完成';
+            copyBtn.style.display = 'inline-flex';
+        } else {
+            resultBox.innerHTML = `<span class="error">❌ ${data.msg || '识别失败，请重试'}</span>`;
+            statusText.textContent = '❌ 识别失败';
+            copyBtn.style.display = 'none';
+        }
+    } catch (error) {
+        resultBox.innerHTML = `<span class="error">❌ 网络错误：${error.message}</span>`;
+        statusText.textContent = '❌ 请求失败';
+        copyBtn.style.display = 'none';
+    } finally {
+        recognizeBtn.disabled = false;
+        recognizeBtn.textContent = '🔍 开始识别';
+        loadingSpinner.style.display = 'none';
+        resultArea.style.display = 'block';
+    }
+}
+
+        // ========================================
+        //  辅助功能
+        // ========================================
+        function clearAll() {
+            currentFile = null;
+            fileInput.value = '';
+            previewImg.src = '';
+            previewArea.style.display = 'none';
+            dropZone.style.display = 'block';
+            recognizeBtn.disabled = true;
+            copyBtn.style.display = 'none';
+            resultBox.innerHTML = '<span class="placeholder">等待识别...</span>';
+            charCount.textContent = '0 字符';
+            statusText.textContent = '就绪';
+            resultArea.style.display = 'none';
+        }
+
+        function copyResult() {
+            const text = resultBox.textContent;
+            if (text && !text.includes('等待识别') && !text.includes('识别中')) {
+                navigator.clipboard.writeText(text).then(() => {
+                    const orig = copyBtn.textContent;
+                    copyBtn.textContent = '✅ 已复制';
+                    setTimeout(() => { copyBtn.textContent = orig; }, 1500);
+                }).catch(() => {
+                    // 降级方案
+                    const range = document.createRange();
+                    range.selectNode(resultBox);
+                    window.getSelection().removeAllRanges();
+                    window.getSelection().addRange(range);
+                    document.execCommand('copy');
+                    alert('已复制到剪贴板');
+                });
+            }
+        }
+
+        // ========================================
+        //  绑定事件
+        // ========================================
+        recognizeBtn.addEventListener('click', recognize);
+        clearBtn.addEventListener('click', clearAll);
+        copyBtn.addEventListener('click', copyResult);
+
+        // 回车键触发识别
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter' && !recognizeBtn.disabled) {
+                recognize();
+            }
+        });
+
+        // 初始化
+        clearAll();
+        console.log('📝 手写识别工具已加载');
+        console.log('💡 提示: 确保后端服务已启动 (python app.py)');
+    </script>
+
+</body>
+</html>

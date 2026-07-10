@@ -3,7 +3,7 @@
 // ============================================
 
 const ManualGrading = {
-    // 评语模板
+    // 评语模板（60分制）
     commentTemplates: {
         strengths: [
             { id: 's1', label: '立意深刻，主题鲜明' },
@@ -38,16 +38,17 @@ const ManualGrading = {
 
         container.innerHTML = `
             <div style="margin-bottom:16px;">
-                <h3 style="font-size:16px;color:#2d3748;margin-bottom:12px;">📊 维度评分</h3>
-                <div class="slider-group">
+                <h3 style="font-size:16px;color:#2d3748;margin-bottom:12px;">📊 维度评分（每项满分10分）</h3>
+                <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px 32px;">
                     ${['内容质量', '结构逻辑', '语言表达', '创意亮点'].map((name, idx) => `
-                        <div class="slider-item">
-                            <div class="label-row">
+                        <div style="display:flex;flex-direction:column;gap:4px;">
+                            <div style="display:flex;justify-content:space-between;font-size:14px;color:#2d3748;">
                                 <span>${name}</span>
-                                <span class="value-display" id="val_${idx}">7</span>
+                                <span style="font-weight:600;color:#4299e1;" id="val_${idx}">7</span>
                             </div>
                             <input type="range" min="0" max="10" value="7" 
                                    id="slider_${idx}" 
+                                   style="width:100%;accent-color:#4299e1;cursor:pointer;"
                                    oninput="window.updateSliderValue(${idx})">
                         </div>
                     `).join('')}
@@ -56,10 +57,10 @@ const ManualGrading = {
 
             <div style="margin:16px 0;">
                 <h3 style="font-size:16px;color:#2d3748;margin-bottom:12px;">✅ 优点（可多选）</h3>
-                <div class="checklist">
+                <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px 24px;">
                     ${strengths.map(s => `
-                        <label>
-                            <input type="checkbox" value="${s.id}" class="strength-check">
+                        <label style="display:flex;align-items:center;gap:8px;padding:4px 0;cursor:pointer;font-size:14px;color:#2d3748;">
+                            <input type="checkbox" value="${s.id}" class="strength-check" style="width:18px;height:18px;accent-color:#4299e1;cursor:pointer;">
                             ${s.label}
                         </label>
                     `).join('')}
@@ -68,10 +69,10 @@ const ManualGrading = {
 
             <div style="margin:16px 0;">
                 <h3 style="font-size:16px;color:#2d3748;margin-bottom:12px;">⚠️ 待改进（可多选）</h3>
-                <div class="checklist">
+                <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px 24px;">
                     ${weaknesses.map(w => `
-                        <label>
-                            <input type="checkbox" value="${w.id}" class="weakness-check">
+                        <label style="display:flex;align-items:center;gap:8px;padding:4px 0;cursor:pointer;font-size:14px;color:#2d3748;">
+                            <input type="checkbox" value="${w.id}" class="weakness-check" style="width:18px;height:18px;accent-color:#e53e3e;cursor:pointer;">
                             ${w.label}
                         </label>
                     `).join('')}
@@ -89,7 +90,6 @@ const ManualGrading = {
             </div>
         `;
 
-        // 存储当前作文文本
         this.currentText = window._currentEssayText || '';
     },
 
@@ -122,21 +122,23 @@ const ManualGrading = {
     },
 
     /**
-     * 生成评语
+     * 生成评语（60分制）
      */
     generateComment(strengths, weaknesses, scores) {
         const parts = [];
 
-        // 总分
+        // 计算总分（4项各10分，共40分，转换为60分制）
         const total = scores.reduce((a, b) => a + b, 0);
-        const avg = Math.round(total / 4);
+        const score60 = Math.round((total / 40) * 60);
         
-        if (avg >= 8) {
-            parts.push('🌟 这是一篇优秀的作文！');
-        } else if (avg >= 6) {
-            parts.push('👍 这是一篇不错的作文，有进一步提升的空间。');
-        } else if (avg >= 4) {
-            parts.push('✏️ 这篇作文基本完成，但还有不少需要改进的地方。');
+        if (score60 >= 52) {
+            parts.push('🌟 这是一篇非常优秀的作文！');
+        } else if (score60 >= 44) {
+            parts.push('👍 这是一篇优秀的作文，展现了你扎实的写作功底。');
+        } else if (score60 >= 36) {
+            parts.push('📝 这是一篇不错的作文，有进一步提升的空间。');
+        } else if (score60 >= 28) {
+            parts.push('✏️ 这篇作文基本完成了写作任务，但还有不少需要改进的地方。');
         } else {
             parts.push('📚 这篇作文还需要更多的练习和积累。');
         }
@@ -164,15 +166,20 @@ const ManualGrading = {
         }
 
         // 具体建议
-        if (scores[0] < 6) {
+        if (scores[0] < 5) {
             parts.push('\n💡 建议加强内容深度，多积累素材。');
-        } else if (scores[1] < 6) {
+        }
+        if (scores[1] < 5) {
             parts.push('\n💡 建议优化文章结构，使层次更清晰。');
-        } else if (scores[2] < 6) {
+        }
+        if (scores[2] < 5) {
             parts.push('\n💡 建议提升语言表达，丰富句式。');
         }
+        if (scores[3] < 4) {
+            parts.push('\n💡 建议多思考，增加文章的创意和深度。');
+        }
 
-        if (total < 24) {
+        if (score60 < 36) {
             parts.push('\n📖 建议多阅读优秀范文，加强日常写作练习。');
         }
 
@@ -188,8 +195,9 @@ const ManualGrading = {
         const weaknesses = this.getSelectedWeaknesses();
         const customComment = document.getElementById('customComment')?.value || '';
 
+        // 转换为60分制
         const total = scores.reduce((a, b) => a + b, 0);
-        const score = Math.round((total / 40) * 100);
+        const score = Math.round((total / 40) * 60);
 
         let comment = this.generateComment(strengths, weaknesses, scores);
         if (customComment) {
@@ -197,7 +205,7 @@ const ManualGrading = {
         }
 
         return {
-            score: Math.min(Math.max(score, 30), 100),
+            score: Math.min(Math.max(score, 20), 60),
             comment: comment,
             dimensions: {
                 content: { score: scores[0], comment: this.getDimensionComment(scores[0]) },
@@ -231,35 +239,44 @@ const ManualGrading = {
 
         const getScoreColor = (s) => {
             if (s >= 8) return '#48bb78';
-            if (s >= 6) return '#ed8936';
+            if (s >= 5) return '#ed8936';
             return '#fc8181';
         };
 
-        container.innerHTML = `
-            <div class="essay-display">${text}</div>
+        const dimLabels = {
+            'content': '内容质量',
+            'structure': '结构逻辑',
+            'language': '语言表达',
+            'creativity': '创意亮点'
+        };
 
-            <div class="score-card">
-                <div class="score-big" style="background:linear-gradient(135deg,#48bb78,#38a169);">
-                    <div class="number">${score}</div>
-                    <div class="label">综合得分</div>
+        container.innerHTML = `
+            <div style="background:#f7fafc;border-radius:12px;padding:20px;margin-bottom:16px;border:1px solid #e2e8f0;max-height:300px;overflow-y:auto;white-space:pre-wrap;font-size:14px;line-height:1.8;">
+                ${text}
+            </div>
+
+            <div style="display:flex;gap:20px;flex-wrap:wrap;margin-bottom:16px;">
+                <div style="background:linear-gradient(135deg,#48bb78,#38a169);color:white;border-radius:16px;padding:20px 32px;text-align:center;min-width:120px;flex:0 0 auto;">
+                    <div style="font-size:48px;font-weight:700;line-height:1;">${score}</div>
+                    <div style="font-size:14px;opacity:0.8;margin-top:4px;">综合得分</div>
                 </div>
-                <div class="score-details">
+                <div style="flex:1;display:grid;grid-template-columns:1fr 1fr;gap:12px;min-width:200px;">
                     ${Object.entries(dimensions).map(([key, val]) => `
-                        <div class="score-item">
-                            <div class="name">${this.getDimensionLabel(key)}</div>
-                            <div class="value">
+                        <div style="background:#edf2f7;border-radius:10px;padding:12px 16px;">
+                            <div style="font-size:13px;color:#718096;">${dimLabels[key] || key}</div>
+                            <div style="font-size:18px;font-weight:600;color:#2d3748;">
                                 <span style="color:${getScoreColor(val.score)}">${val.score}</span>
-                                <span class="total">/ 10</span>
-                                <div style="font-size:12px;color:#718096;margin-top:2px;">${val.comment}</div>
+                                <span style="font-size:13px;font-weight:400;color:#a0aec0;">/ 10</span>
                             </div>
+                            <div style="font-size:12px;color:#718096;margin-top:2px;">${val.comment}</div>
                         </div>
                     `).join('')}
                 </div>
             </div>
 
-            <div class="comments-box" style="border-left-color:#48bb78;">
-                <div class="title" style="color:#38a169;">📝 教师评语</div>
-                <div class="content">${comment}</div>
+            <div style="background:#ebf8ff;border-radius:12px;padding:20px 24px;border-left:4px solid #48bb78;">
+                <div style="font-weight:600;color:#2b6cb0;margin-bottom:8px;">📝 教师评语</div>
+                <div style="color:#2d3748;line-height:1.8;white-space:pre-wrap;font-size:14px;">${comment}</div>
             </div>
 
             <div style="margin-top:16px;display:flex;gap:12px;flex-wrap:wrap;">

@@ -14,7 +14,7 @@ CORS(app)
 # 你的百度云密钥（建议使用环境变量）
 # ============================================
 API_KEY = os.environ.get('API_KEY', "N1DvWG01pY3suaUWdXh4eroA")
-SECRET_KEY = os.environ.get('SECRET_KEY', "gmNkleGlrRKHu5kzbfj6oJc2dWI6lmBN")
+SECRET_KEY = os.environ.get('SECRET_KEY', "cpp10Ch1oo5aYBEN3ilP5uRdrgWRjfeP")
 
 # 作文评分标准
 GRADING_CRITERIA = {
